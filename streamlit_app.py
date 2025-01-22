@@ -47,16 +47,7 @@ def SAR(res,vref,vin,pr):
 # :level_slider: SAR ADC example
 
 
-Change the "analog wave" and the resolution of the SAR ADC and observe the result
-
-
-Base frequency: 1000 Hz
-
-
-Amplitude: 1V
-
-
-Bias: 2V
+Change the analog wave and the resolution of the SAR ADC and observe the result
 '''
 
 # Add some spacing
@@ -64,22 +55,33 @@ Bias: 2V
 ''
 
 option = st.selectbox(
-    'Select the type of wave',
-    ['sine at 2f','sine at 2f + cosine at 4f'])
+    'Select the type of analog wave',
+    ['sine','sine + cosine','exponential'])
 
 f = 1000
 T = 1/f
 t = np.arange(0,T,T/100)
 bias = 2 
 s = 0*t + bias
+'Constants:' 
+st.latex(r'''f=1000 \,\mathrm{Hz} \,\,\, T=1/f \, \mathrm{s} \,\,\, A=1 \,\mathrm{V} \,\,\, B=2 \,\mathrm{V}''')
 
 match option:
-    case 'sine at 2f':
+    case 'sine':
         s = np.sin(2*np.pi*2*f*t) + bias
-    case 'sine at 2f + cosine at 4f':
+        equation = r''' A \cdot \sin{(2 \cdot \pi \cdot 2 \cdot f \cdot t)} + B '''
+    case 'sine + cosine':
         s = np.sin(2*np.pi*2*f*t)+np.cos(2*np.pi*4*f*t) + bias
+        equation = r''' A \cdot \sin{(2 \cdot \pi \cdot 2 \cdot f \cdot t)} + A \cdot \cos{(2 \cdot \pi \cdot 4 \cdot f \cdot t)} + B '''
+    case 'exponential':
+        s = (t>=0)*(t<=(0.5*T))*(1-np.exp(-(t/(0.5*T)))) + (t>(0.5*T))*(2*np.exp(-((t-0.5*T)/(0.5*T))))
+        equation = r''' A \cdot \left( u(t) - u(t - 0.5 \cdot T) \right)  \cdot \left( 1 - e^{\dfrac{-t}{0.5 \cdot T}}\right) +
+        B \cdot \left( u(t - 0.5 \cdot T) \right) \cdot \left( e^{\dfrac{- t - 0.5 \cdot T}{0.5 \cdot T}}\right) '''
     case _:
         'ohh no'
+
+'Equation:'
+st.latex(equation)
 
 data={'time':t*1000,'wave':s}
 
