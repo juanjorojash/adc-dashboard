@@ -136,5 +136,3 @@ st.line_chart(
     x_label='time (ms)',
     y_label='voltage (V)',
 )
-
-
